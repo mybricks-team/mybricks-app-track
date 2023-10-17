@@ -1,0 +1,53 @@
+{
+  "name": "mybricks-app-track",
+  "version": "0.0.1",
+  "description": "生成你的埋点方案",
+  "scripts": {
+    "start:watch": "nodemon --ext js,ts --exec 'NODE_ENV=development MYBRICKS_PLATFORM_ADDRESS=https://my.mybricks.world node nodejs/index.js'",
+    "dev:be": "ts-node -T ./nodejs/main.ts",
+    "build:fe": "cd pages && npm run build",
+    "publishToNpm:serviceUpdate": "npm run build:fe && npm publish --registry=https://registry.npmjs.org && node sync.js --origin=https://my.mybricks.world",
+    "publishToNpm": "npm run build:fe && npm publish --registry=https://registry.npmjs.org && node sync.js --origin=https://my.mybricks.world --noServiceUpdate",
+    "publishToNpm:offline": "npm i && cd pages && npm run build:offline && cd ../ && node sync_offline.js",
+    "publishToNpm:beta": "npm run build:fe && npm publish --tag beta --registry=https://registry.npmjs.org --access=public && node sync.js --origin=https://my.mybricks.world"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mybricks-team/mybricks-app-track.git"
+  },
+  "keywords": [],
+  "author": "leon-js",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mybricks-team/mybricks-app-track/issues"
+  },
+  "homepage": "https://github.com/mybricks-team/mybricks-app-track#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "mybricks": {
+    "title": "埋点方案",
+    "extName": "track",
+    "icon": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNjkxNjU5MTA4NjYzIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjU5MjYiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+PHBhdGggZD0iTTUyMS4xNTIgNTExLjkzNm0tNDE2IDBhNDE2IDQxNiAwIDEgMCA4MzIgMCA0MTYgNDE2IDAgMSAwLTgzMiAwWiIgZmlsbD0iI0FFRUNGRiIgcC1pZD0iNTkyNyI+PC9wYXRoPjxwYXRoIGQ9Ik04MzcuNTY4IDYzNC41NmExMy41NjggMTMuNTY4IDAgMCAwLTE5LjMyOCAwbC0xOTUuOTY4IDE5NS45MDRhMTMuNjk2IDEzLjY5NiAwIDAgMCAwIDE5LjMyOGw2Mi43ODQgNjIuNzJjMi41NiAyLjYyNCA2LjAxNiAzLjk2OCA5LjQ3MiAzLjk2OGgwLjA2NGwwLjA2NCAwLjA2NHM2NS45ODQtMjIuNCA5Mi4zNTItMTkuMjY0YzUyLjAzMiA2LjA4IDEyMC40NDggNTkuOTY4IDEyMC40NDggNTkuOTY4bDAuMTkyLTAuMjU2YTI2LjgxNiAyNi44MTYgMCAwIDAgMzUuNTItMS44NTYgMjYuODE2IDI2LjgxNiAwIDAgMCAxLjg1Ni0zNS41MmwwLjM4NC0wLjMycy01My4zNzYtNjguOTkyLTU5LjEzNi0xMjAuNjRjLTMuMjY0LTI4LjQ4IDE3Ljg1Ni05MS45MDQgMTcuODU2LTkxLjkwNGwtMC4wNjQgMC4wNjRhMTMuNTY4IDEzLjU2OCAwIDAgMC0zLjkwNC05LjQ3MmwtNjIuNTkyLTYyLjc4NHogbTk2LjMyIDMxMS41NTJhMTIuOCAxMi44IDAgMSAxLTE4LjExMi0xOC4xNzYgMTIuOCAxMi44IDAgMCAxIDE4LjExMiAxOC4xNzZ6IiBmaWxsPSIjMDFDNEM2IiBwLWlkPSI1OTI4Ij48L3BhdGg+PHBhdGggZD0iTTgzNy41NjggNjM0LjU2YTEzLjU2OCAxMy41NjggMCAwIDAtMTkuMzI4IDBsLTk3LjkyIDk3LjkyIDE5NS40NTYgMTk1LjQ1NmExMi44IDEyLjggMCAxIDEgMTguMTEyIDE4LjE3Nmw5LjIxNiA5LjE1MiAwLjE5Mi0wLjE5MmEyNi44MTYgMjYuODE2IDAgMCAwIDEuODU2LTM1LjUybDAuMzg0LTAuMzJzLTUzLjM3Ni02OC45OTItNTkuMTM2LTEyMC42NGMtMy4yNjQtMjguNDggMTcuODU2LTkxLjkwNCAxNy44NTYtOTEuOTA0bC0wLjA2NCAwLjA2NGExMy41NjggMTMuNTY4IDAgMCAwLTMuOTA0LTkuNDcybC02Mi43Mi02Mi43MnoiIGZpbGw9IiMwMEIxQjMiIHAtaWQ9IjU5MjkiPjwvcGF0aD48cGF0aCBkPSJNODgyLjY4OCA2NzkuNjhsLTQ1LjEyLTQ1LjEyYTEzLjU2OCAxMy41NjggMCAwIDAtMTkuMzI4IDBsLTE5NS45NjggMTk1LjkwNGExMy42OTYgMTMuNjk2IDAgMCAwIDAgMTkuMzI4bDQ1LjE4NCA0NS4xODQgMjE1LjIzMi0yMTUuMjk2eiIgZmlsbD0iI0Q4RDhEOCIgcC1pZD0iNTkzMCI+PC9wYXRoPjxwYXRoIGQ9Ik04NDkuODU2IDYzNi44YTYuODQ4IDYuODQ4IDAgMCAxIDAgOS42TDYzNC4yNCA4NjIuMDhhNi44NDggNi44NDggMCAwIDEtOS42NjQtOS42NjRsMjE1LjYxNi0yMTUuNjhhNi44NDggNi44NDggMCAwIDEgOS42NjQgMC4wNjR6TTg3MC42NTYgNjU3LjY2NGE2LjcyIDYuNzIgMCAwIDEgMCA5LjZsLTIxNS42MTYgMjE1LjYxNmE2Ljg0OCA2Ljg0OCAwIDAgMS05LjYgMCA2Ljg0OCA2Ljg0OCAwIDAgMS0wLjA2NC05LjY2NGwyMTUuNjE2LTIxNS42MTZhNi43MiA2LjcyIDAgMCAxIDkuNjY0IDAuMDY0eiIgZmlsbD0iI0Y3RjdGNyIgcC1pZD0iNTkzMSI+PC9wYXRoPjxwYXRoIGQ9Ik01NDIuNzg0IDc0NS4wODhsMTkxLjEwNC0xOTEuMTY4IDgyLjQzMiA4Mi40MzJMNjI1LjI4IDgyNy41MnoiIGZpbGw9IiNGN0RDOEYiIHAtaWQ9IjU5MzIiPjwvcGF0aD48cGF0aCBkPSJNNTcxLjcxMiA3MTYuMTZsMjguOTI4LTI4LjkyOCA4Mi41NiA4Mi40MzItMjguOTI4IDI4LjkyOHpNNjIwLjkyOCA2NjYuODhsMTcuMjgtMTcuMzQ0IDgyLjU2IDgyLjMwNC0xNy4yOCAxNy4zNDR6IiBmaWxsPSIjRkZFQ0JEIiBwLWlkPSI1OTMzIj48L3BhdGg+PHBhdGggZD0iTTY1OC42MjQgNjI5LjEybDM3Ljk1Mi0zNy45NTIgODIuNTYgODIuMzY4LTM4LjAxNiAzOC4wMTZ6IiBmaWxsPSIjRUZDRTcxIiBwLWlkPSI1OTM0Ij48L3BhdGg+PHBhdGggZD0iTTY3OS44NzIgNjA4bDM3Ljg4OC0zNy44ODggODIuNDk2IDgyLjQzMi0zNy45NTIgMzcuOTUyeiIgZmlsbD0iI0VEQ0U4QSIgcC1pZD0iNTkzNSI+PC9wYXRoPjxwYXRoIGQ9Ik01MjEuMDg4IDk2YTQxNiA0MTYgMCAwIDAtNDE2IDQxNmMwIDMxLjE2OCAzLjcxMiA2MS40NCAxMC4xNzYgOTAuNjg4IDIuODggMC4yNTYgNS4zMTIgMS41MzYgOC4yNTYgMS41MzYgMzUuOTY4IDAgNjUuMTUyLTI5LjE4NCA2NS4xNTItNjUuMTUyIDAtMC4zODQtMC4xOTItMC43MDQtMC4xOTItMS4xNTJoMC4zMlY0MTcuOTJoMC4yNTZhMjMuNjggMjMuNjggMCAwIDEgNDcuMjk2IDEuNDcyaDAuMzg0bDAuNTEyIDExOC42NTZoMC41NzZhNTEuNTg0IDUxLjU4NCAwIDAgMCAxMDMuMTA0IDBoMC42NEwzNDAuNzM2IDI5MS4ydi0xLjIxNmgwLjE5MmEzNy4wNTYgMzcuMDU2IDAgMCAxIDc0LjExMiAxLjE1MmMwIDAuNTEyLTAuMjU2IDAuOTYtMC4zMiAxLjUzNmwxLjE1MiAyNDQuMTZjLTAuMDY0IDEuMjE2LTAuNzA0IDIuMjQtMC43MDQgMy4zOTJhNjEuNTA0IDYxLjUwNCAwIDAgMCAxMjIuOTQ0IDBjMC0wLjgzMi0wLjQ0OC0xLjQ3Mi0wLjQ0OC0yLjI0aDAuMTkyVjI2OC4wMzJoMC4zMmMwLTAuNTEyLTAuMzItMC45Ni0wLjMyLTEuNDcyYTMxLjQ4OCAzMS40ODggMCAxIDEgNjIuOTc2IDBjMCAwLjUxMi0wLjI1NiAwLjk2LTAuMzIgMS40NzJoMC4xOTJsMC43NjggMjY2LjQ5NmMtMC4wNjQgMC41MTItMC4yNTYgMC45Ni0wLjI1NiAxLjQ3MiAwIDAuNTc2IDAuMzIgMS4wMjQgMC4zMiAxLjUzNnYwLjQ0OEg2MDEuNmEyOC44IDI4LjggMCAwIDAgMjguNTQ0IDI3LjAwOCAyOC44IDI4LjggMCAwIDAgMjguNjA4LTI3LjAwOHYtMC4xMjhjMC4wNjQtMC42NCAwLjM4NC0xLjIxNiAwLjM4NC0xLjg1NiAwLTAuNjQtMC4zMi0xLjIxNi0wLjM4NC0xLjc5MmwwLjUxMi0yNDQuOTkyLTAuMDY0LTAuMzJhNDMuNTIgNDMuNTIgMCAwIDEgODcuMDQgMGwtMC4wNjQgMC40NDhoMC42NHYxMjcuNTUyYy0wLjA2NCAwLjk2LTAuNTc2IDEuNzkyLTAuNTc2IDIuNzUyIDAgMS4wMjQgMC41MTIgMS43OTIgMC41NzYgMi43NTJ2NS41NjhoMS4xNTJhNDIuODggNDIuODggMCAwIDAgNDEuNzI4IDM1LjEzNiA0Mi44MTYgNDIuODE2IDAgMCAwIDQxLjc5Mi0zNS4xMzZoMS4zNDR2LTYuNDY0YzAtMC42NCAwLjM4NC0xLjIxNiAwLjM4NC0xLjg1NnMtMC4zODQtMS4yMTYtMC4zODQtMS44NTZ2LTQyLjA0OGMtMC4wNjQtMC41NzYtMC42NC0wLjg5Ni0wLjY0LTEuNDcyczAuNTc2LTAuOTYgMC42NC0xLjQ3MlYzNzIuNDhoMC4xMjhhMjAuOTI4IDIwLjkyOCAwIDAgMSAyMC40OC0xOS41MmMxMS4yIDAgMjAuMDMyIDguOTYgMjAuNzM2IDIwLjAzMmgwLjY0bDAuODk2IDE2NC45OTJoMC44MzJjMC43MDQgMjMuNDg4IDE5LjcxMiA0Mi4yNCA0My4yIDQyLjI0IDQuMTYgMCA3LjkzNi0xLjI4IDExLjc3Ni0yLjM2OCAzLjQ1Ni0yMS41MDQgNS43Ni00My40NTYgNS43Ni02NS45MkE0MTYuMTkyIDQxNi4xOTIgMCAwIDAgNTIxLjA4OCA5NnoiIGZpbGw9IiMwMDkxREMiIHAtaWQ9IjU5MzYiPjwvcGF0aD48L3N2Zz4="
+  },
+  "dependencies": {
+    "@mybricks/rocker-dao": "^0.0.6",
+    "@mybricks/sdk-for-app": "0.1.84",
+    "@nestjs/common": "^8.0.0",
+    "@nestjs/core": "^8.0.0",
+    "@nestjs/platform-express": "^8.0.0",
+    "axios": "^1.4.0",
+    "dayjs": "^1.11.5",
+    "form-data": "^4.0.0",
+    "lodash": "^4.17.21",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.0",
+    "jszip": "^3.10.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.3"
+  }
+}

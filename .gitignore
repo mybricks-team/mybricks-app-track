@@ -1,0 +1,8 @@
+node_modules
+assets
+package-lock.json
+.idea
+.git
+.vscode
+mybricks-app-track.zip
+.DS_Store

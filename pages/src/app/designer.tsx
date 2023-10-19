@@ -11,9 +11,11 @@ import moment from 'moment'
 import { message, Button } from 'antd'
 import API from '@mybricks/sdk-for-app/api'
 // import toolsPlugin from '@mybricks/plugin-tools'
+import isPlainObject from 'lodash/isPlainObject'
 import versionPlugin from 'mybricks-plugin-version'
 import { Locker, Toolbar } from '@mybricks/sdk-for-app/ui'
-import { CodeTemplate } from './constant'
+import { TrackPanelCom } from './track-panel'
+import { CodeTemplate, EditorsCdnOptions } from './constant'
 // import { config as ThemePlugin } from '@mybricks/plugin-theme'
 
 import myEditors from './editors'
@@ -31,11 +33,18 @@ const useGlobalModel = (defaultValue = { pageEnv: {}, pageHooks: {} }) => {
     return {
       ...model,
       setPageEnv: (pageEnv) => {
-        setModel(c => ({ ...model, pageEnv }))
+        setModel(c => ({ ...c, pageEnv }))
       },
       setPageHooks: (pageHooks) => {
-        setModel(c => ({ ...model, pageHooks }))
+        setModel(c => ({ ...c, pageHooks }))
       },
+      setSpmDefinitionsByNamespace: (namespace, defines) => {
+        setModel(c => {
+          const spmDefinitions = isPlainObject(c.spmDefinitions) ? c.spmDefinitions : {};
+          spmDefinitions[namespace] = defines;
+          return { ...c, spmDefinitions }
+        })
+      }
     }
   }, [model]);
 
@@ -59,6 +68,9 @@ export default function Designer({ appData }) {
   const [publishLoading, setPublishLoading] = useState(false)
 
   const content = appData.fileContent.content
+
+  delete content.tracksJson?.comTrackPoints;
+  delete content.tracksJson?.comInstanceTrack;
 
   const globalModel = useGlobalModel(content.tracksJson);
 
@@ -94,7 +106,6 @@ export default function Designer({ appData }) {
 
   const getTracksJson = useCallback(() => {
     const json = JSON.parse(JSON.stringify(globalModel))
-
     return json
   }, [globalModel])
 
@@ -136,33 +147,31 @@ export default function Designer({ appData }) {
     save({ name: appData.fileContent.name, content: JSON.stringify(json) }, true)
     setBeforeunload(false)
 
-    let spmDefinitions = {}
+    // let spmDefinitions = {}
 
-    const allComponents = traverseAllComponents(designerRef.current.components.getAll());
+    // const allComponents = traverseAllComponents(designerRef.current.components.getAll());
 
-    allComponents.forEach(comp => {
-      const { def, model } = comp;
-      const { namespace, version } = def;
+    // allComponents.forEach(comp => {
+    //   const { def, model } = comp;
+    //   const { namespace, version } = def;
 
-      if (Array.isArray(model.spm) && model.spm.length > 0) {
-        spmDefinitions[namespace] = model.spm.filter(t => !!t.func);
-      }
-    })
+    //   if (Array.isArray(model.spm) && model.spm.length > 0) {
+    //     spmDefinitions[namespace] = model.spm.filter(t => !!t.func);
+    //   }
+    // })
 
-    const { pageHooks, pageEnv } = json?.tracksJson ?? {};
+    // const { pageHooks, pageEnv } = json?.tracksJson ?? {};
 
-    const trackJsonFile = {
-      pageHooks,
-      pageEnv,
-      spmDefinitions,
-    }
-
-    console.log(trackJsonFile)
+    // const trackJsonFile = {
+    //   pageHooks,
+    //   pageEnv,
+    //   spmDefinitions,
+    // }
 
     const res = await axios.post('/api/track/publish', {
       userId: appData.user.id,
       fileId: appData.fileId,
-      json: trackJsonFile,
+      json: json.tracksJson,
       title: appData.fileContent.name
     })
 
@@ -258,23 +267,15 @@ function spaDesignerConfig ({ appData, designerRef, globalModel }) {
 
   return {
     plugins: [
-      // ThemePlugin,
       versionPlugin({
         user: appData.user,
         file: appData.fileContent || {}
       }),
-      // toolsPlugin(),
     ],
     comLibLoader() {
       return new Promise((resolve) => {
-        
         // TODO: 先写死
-        const localComlibs = JSON.parse(localStorage.getItem('MYBRICKS_APP_THEME_COMLIBS'))
-        if (localComlibs) {
-          resolve(localComlibs)
-        } else {
-          resolve(['https://f2.beckwai.com/udata/pkg/eshop/fangzhou/temp/0.0.11/edit.js'])
-        }
+        resolve(['https://f2.beckwai.com/udata/pkg/eshop/fangzhou/temp/0.0.11/edit.js'])
       })
     },
     pageContentLoader() {
@@ -282,9 +283,37 @@ function spaDesignerConfig ({ appData, designerRef, globalModel }) {
         resolve(appData.fileContent.content)
       })
     },
-    // TODO: 临时开放，需要看类似选中、悬浮、禁用状态等
     toplView: false,
     editView: {
+      panelAppender(type, model, ...p) {
+        if (type === 'com') {
+
+          const namespace = model.def?.namespace;
+          const editorsSpms = model.def?.editors?.spm ?? [];
+          // const editorsSpms = [
+          //   {
+          //     id: 'button',
+          //     type: ['CLK', 'EXP'],
+          //     title: '按钮曝光',
+          //   },
+          //   {
+          //     id: 'ccc',
+          //     title: '自定义事件',
+          //   }
+          // ]
+
+          const hasSpmDefines = !!(Array.isArray(editorsSpms) && editorsSpms?.length);
+
+          const handleChange = defines => {
+            globalModel.setSpmDefinitionsByNamespace(namespace, defines)
+          }
+
+          return hasSpmDefines ? {
+            title: '埋点',
+            render: () => <TrackPanelCom initValues={globalModel.spmDefinitions?.[namespace]} configs={editorsSpms} onChange={handleChange} />
+          } : null
+        }
+      },
       // width: 1000,
       editorAppender(editConfig) {
         return myEditors({ editConfig, designerRef }, { fileId: appData.fileId })
@@ -292,10 +321,6 @@ function spaDesignerConfig ({ appData, designerRef, globalModel }) {
       items(_, cate0) {
         cate0.title = '埋点方案'
         cate0.items = [
-          // {
-          //   title: '主题包配置',
-          //   type: 'Theme'
-          // },
           {
             title: '参数',
             type: 'map',
@@ -310,7 +335,7 @@ function spaDesignerConfig ({ appData, designerRef, globalModel }) {
           },
           {
             title: '',
-            type: 'TRACKCODE',
+            type: 'trackplan',
             options: {
               title: '埋点SDK注入',
               language: 'html',
@@ -318,45 +343,16 @@ function spaDesignerConfig ({ appData, designerRef, globalModel }) {
             },
             value: {
               get: () => {
-                return {
-                  code: globalModel.pageHooks?.initial
-                };
+                return globalModel.pageHooks?.initial;
               },
               set: (_, value) => {
-                globalModel.setPageHooks({ initial: value.code });
+                globalModel.setPageHooks({ initial: value });
               }
             }
           },
-          {
-            title: '',
-            type: 'track',
-            value: {
-              // get: () => {
-              //   console.log(globalModel)
-              //   return {
-              //     code: globalModel.pageHooks?.initial
-              //   };
-              // },
-              set: (_, value) => {
-                console.log('set', value)
-                // globalModel.setPageHooks({ initial: value.code });
-              }
-            }
-          }
-          // {
-          //   title: '',
-          //   type: 'trackplan',
-          //   value: {
-          //     get: () => {
-          //       return globalModel.pageHooks;
-          //     },
-          //     set: (_, value) => {
-          //       globalModel.setPageHooks(value);
-          //     }
-          //   }
-          // }
         ]
       },
+      editorOptions: EditorsCdnOptions
     },
     com: {
       env: {

@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react'
 import { FullscreenOutlined } from '@ant-design/icons'
 import MonacoEditor from '@mybricks/code-editor'
+import { EditorsCdnOptions } from './../../../constant' 
 import css from './index.less'
 
 const ICONS = {
@@ -57,20 +58,43 @@ const ICONS = {
   ),
 }
 
+const FormatAction = ({ onClick = () => {}, className = '', style = {} }) => {
+  return (
+    <svg
+    className={className}
+    style={style}
+      viewBox="0 0 1024 1024"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      p-id="3890"
+      width="20"
+      height="20"
+      onClick={onClick}
+    >
+      <path
+        d="M541.141333 268.864l61.717334 16.938667-132.394667 482.474666-61.717333-16.938666 132.394666-482.474667zM329.002667 298.666667l44.885333 45.610666-175.36 172.586667 175.04 167.573333-44.266667 46.229334L106.666667 517.504 329.002667 298.666667z m355.882666 0l222.336 218.837333L684.586667 730.666667l-44.266667-46.229334 175.018667-167.573333L640 344.277333 684.885333 298.666667z"
+        p-id="3891"
+      ></path>
+    </svg>
+  )
+}
+
 const languageMap: { [language: string]: string } = {
   jsx: 'javascript',
 }
 
 export default function ({
-  value = '',
+  initValue = '',
   title = '',
   onChange = (val: string) => {},
   language = 'javascript',
   comments = '',
   readonly = false,
   enableFullscreen = true,
-  CDN,
+  CDN = EditorsCdnOptions.code.CDN,
   popView,
+  renderOperates = () => null,
+  onBlur,
   ...extraOpt
 }): JSX.Element {
   const commentRef: any = useRef()
@@ -106,34 +130,15 @@ export default function ({
     editorRef.current?.getAction?.(['editor.action.formatDocument'])._run()
   }, [editorRef.current])
 
-  const renderToolbar = useMemo(() => {
-    return (
-      <div className={css['editor-code__modal-toolbar']}>
-        <svg
-          viewBox="0 0 1024 1024"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          p-id="3890"
-          width="24"
-          height="24"
-          onClick={onFormatIconClick}
-        >
-          <path
-            d="M541.141333 268.864l61.717334 16.938667-132.394667 482.474666-61.717333-16.938666 132.394666-482.474667zM329.002667 298.666667l44.885333 45.610666-175.36 172.586667 175.04 167.573333-44.266667 46.229334L106.666667 517.504 329.002667 298.666667z m355.882666 0l222.336 218.837333L684.586667 730.666667l-44.266667-46.229334 175.018667-167.573333L640 344.277333 684.885333 298.666667z"
-            p-id="3891"
-          ></path>
-        </svg>
-      </div>
-    )
-  }, [])
 
-  const onBlur = useCallback(
+  const hanldeBlur = useCallback(
     (editor, monaco, container) => {
       if (monaco) {
         onChange?.(editor.getValue())
       }
+      onBlur?.(editor, monaco, container)
     },
-    [onChange]
+    [onChange, onBlur]
   )
 
   const open = useCallback(() => {
@@ -144,7 +149,6 @@ export default function ({
         () => {
           return (
             <div className={css['editor-code__modal']}>
-              {renderToolbar}
               {
                 <>
                   <div
@@ -155,11 +159,11 @@ export default function ({
                     <MonacoEditor
                       {...extraOpt}
                       onMounted={onMonacoMounted}
-                      value={value}
+                      value={initValue}
                       readOnly={readonly}
                       onChange={handleChange}
                       CDN={CDN}
-                      onBlur={onBlur}
+                      onBlur={hanldeBlur}
                       height="100%"
                       width="100%"
                       language={languageMap[language] || language}
@@ -174,7 +178,7 @@ export default function ({
                       // onClick={evt().stop}
                       />
                       <div className={css.icons}>
-                        <div className={css['icons__left']}>注释</div>
+                        <div className={css['icons__left']}>代码示例</div>
                         <div className={css['icons__right']}>
                           {model.icon === 'min' && (
                             <div onClick={() => onIconClick('recover')}>
@@ -215,7 +219,7 @@ export default function ({
         }
       )
     }
-  }, [model, value, readonly, comments, CDN, title, extraOpt, language])
+  }, [model, initValue, readonly, comments, CDN, title, extraOpt, language])
 
   const handleChange = useCallback((v: string, e: any) => {
     onChange?.(v)
@@ -226,15 +230,16 @@ export default function ({
       <div className={css['editor-code__container']}>
         <div className={css['editor-code__modal']}>
           <div className={css['editor-code__header']}>
-            {renderToolbar}
             <div className={css['editor-code__title']}>{title}</div>
-            {enableFullscreen && (
-              <div>
-                <div className={css.action} onClick={open}>
+            <div className={css['editor-code__operates']}>
+              <div className={css.example} style={{ marginRight: 5 }} onClick={open}>查看示例</div>
+              {/* <FormatAction style={{ marginRight: 5, cursor: 'pointer' }} onClick={onFormatIconClick} /> */}
+              {
+                enableFullscreen && <div className={css.action} onClick={open}>
                   <FullscreenOutlined />
                 </div>
-              </div>
-            )}
+              }
+            </div>
           </div>
           {!model.modalVisible && (
             <>
@@ -243,11 +248,11 @@ export default function ({
                 height="100%"
                 {...extraOpt}
                 onMounted={onMonacoMounted}
-                value={value}
+                value={initValue}
                 readOnly={readonly}
                 onChange={handleChange}
                 CDN={CDN}
-                onBlur={onBlur}
+                onBlur={hanldeBlur}
                 className={css['editor-code__min-container']}
                 language={languageMap[language] || language}
                 autoSave={true}

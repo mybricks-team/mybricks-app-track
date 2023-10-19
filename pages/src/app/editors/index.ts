@@ -1,8 +1,5 @@
 import API from '@mybricks/sdk-for-app/api'
-import ThemeEditor from './theme'
 import TrackPlanEditor from './track-plan'
-import TrackEditor from './track'
-import TrackCode from './coder'
 
 export default ({ editConfig, designerRef }, { fileId }) => {
   if (editConfig && !editConfig.upload) {
@@ -21,10 +18,7 @@ export default ({ editConfig, designerRef }, { fileId }) => {
   }
 
   const editorsMap = {
-    THEME: ThemeEditor,
-    TRACK: TrackEditor,
     TRACKPLAN: TrackPlanEditor,
-    TRACKCODE: TrackCode,
   }
 
   let editor

@@ -11,6 +11,7 @@ const BuildPlugin = require('./buildplugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WebpackBar = require('webpackbar')
 const HtmlWebpackInlineSourcePlugin = require('@effortlessmotion/html-webpack-inline-source-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = merge(common, {
   mode: 'production',
@@ -44,6 +45,11 @@ module.exports = merge(common, {
         return content
       }
     }),
-    new HtmlWebpackInlineSourcePlugin()
+    new HtmlWebpackInlineSourcePlugin(),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: path.resolve(__dirname, '../templates/public'), to: "public" },
+      ],
+    })
   ]
 });

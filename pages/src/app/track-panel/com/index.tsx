@@ -1,9 +1,31 @@
 import React, { useMemo, useCallback, useRef, useEffect, useState } from 'react'
+import ReactDOM from 'react-dom';
 import CodeEditor from '../components/code-editor'
+import { CodeTemplate } from './../../constant'
 import css from './index.less'
 
-const getTypeFromSpm = ({ type }) => {
-  return ((Array.isArray(type) ? type[0] : type) ?? '').toUpperCase()
+const popViewRootElement = document.createElement('div');
+document.body.appendChild(popViewRootElement)
+
+const popView = (title, render) => {
+  const close = () => {
+    ReactDOM.unmountComponentAtNode(popViewRootElement)
+  }
+
+  return ReactDOM.render((
+    <div className={css.modal}>
+      <div className={css.mask} onClick={close}/>
+      <div className={css.body}>
+        <div className={css.header}>
+          <div>
+            <svg onClick={close} t="1634129353244" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7239" width="16" height="16"><path d="M426.1888 522.717867L40.004267 136.533333 136.533333 40.004267l386.184534 386.184533L908.9024 40.004267 1005.431467 136.533333 619.178667 522.717867l386.184533 386.184533-96.529067 96.529067L522.717867 619.178667 136.533333 1005.431467 40.004267 908.9024l386.184533-386.184533z" p-id="7240"></path></svg>
+          </div>
+          <span>{title}</span>
+        </div>
+        {render()}
+      </div>
+    </div>
+  ), popViewRootElement)
 }
 
 enum CNType {
@@ -34,11 +56,11 @@ const Track = ({ type, title, id, value, onChange }) => {
       <CodeEditor
         // title={title}
         language={'javascript'}
-        // comments={options?.comments}
+        comments={CodeTemplate.Track.Com.Comment}
         initValue={value}
         onBlur={(editor) => onChange?.({ id, type, func: editor.getValue()})}
         // onChange={(v) => onChange?.({ id, type, func: v })}
-        // popView={editConfig.popView}
+        popView={popView}
         // CDN={defaultOptions.CDN}
         height={'80px'}
       />

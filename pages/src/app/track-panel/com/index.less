@@ -13,6 +13,8 @@
 
   .extra {
     flex: 1;
+    display: flex;
+    justify-content: flex-end;
   }
 }
 
@@ -24,16 +26,34 @@
     margin-left: 6px;
     display: flex;
     align-items: center;
+    height: 14px;
+    overflow: hidden;
     // justify-content: center;
 
+
+
+    &>:not(:first-child) {
+        border-left: 1px solid rgba(221, 221, 221, 1);
+        padding-left: 4px;
+    }
+
     .type {
-      margin-right: 2px;
+      margin-right: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 12px;
       cursor: pointer;
       color: #9B9B9B;
+
+      transition: all ease 0.2s;
+
+      // border-left: 1px solid #9B9B9B;
+
+      &:hover {
+        color: #FA6400;
+      }
+      
     }
 
     .typeActive {
@@ -47,4 +67,74 @@
 
 .track {
   margin-bottom: 15px;
+}
+
+.modal {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  top: 45px;
+  z-index: 1000;
+  border-left: 1px solid #BBB;
+
+  display: flex;
+  justify-content: flex-end;
+
+  .mask {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    top: 0px;
+    background-color: #fff;
+    opacity: 0.5;
+    z-index: 1;
+  }
+
+  .body {
+    height: 100vh;
+    width: 40%;
+    min-width: 400px;
+    background-color: #fff;
+    z-index: 2;
+
+    border-left: 1px solid #DDD;
+
+    .header {
+      // position: absolute;
+      z-index: 4;
+      width: 100%;
+      height: 40px;
+      position: absolute;
+      padding-left: 12px;
+      background-color: transparent;
+
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+
+
+      >div {
+        position: absolute;
+        z-index: 5;
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        svg {
+          width: 12px;
+          height: 12px;
+        }
+      }
+      
+
+      span {
+        margin-left: 10px;
+        font-weight: bold;
+      }
+    }
+  }
 }

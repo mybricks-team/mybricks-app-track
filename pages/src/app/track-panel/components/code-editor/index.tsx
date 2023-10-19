@@ -143,7 +143,7 @@ export default function ({
 
   const open = useCallback(() => {
     if (!model.modalVisible) {
-      setModel((c) => ({ ...c, modalVisible: true }))
+      setModel((c) => ({ ...c, modalVisible: false }))
       popView(
         title,
         () => {

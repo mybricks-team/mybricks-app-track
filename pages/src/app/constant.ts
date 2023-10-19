@@ -11,6 +11,20 @@ export const CodeTemplate = {
 // SDK 初始化js逻辑
 </script>
 `,
+    },
+    Com: {
+      Comment: `/**
+* @param common 公共参数，比如搭建时声明的title
+* @param extra 额外参数，包含代码传入的额外参数以及搭建时补充的业务参数
+* @description 书写同一类型的组件使用什么方式上报
+**/
+(common, extra) => {
+  // 假设使用aplus上报
+  aplus.record('BUTTON', {
+    title: common.title,
+  })
+}       
+      `
     }
   }
 }

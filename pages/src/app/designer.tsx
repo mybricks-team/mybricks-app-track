@@ -294,11 +294,11 @@ function spaDesignerConfig ({ appData, designerRef, globalModel }) {
           //   {
           //     id: 'button',
           //     type: ['CLK', 'EXP'],
-          //     title: '按钮曝光',
+          //     title: '按钮元素',
           //   },
           //   {
           //     id: 'ccc',
-          //     title: '自定义事件',
+          //     title: '点击成功',
           //   }
           // ]
 

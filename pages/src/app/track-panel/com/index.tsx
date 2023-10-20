@@ -101,7 +101,7 @@ const MutiTrack = ({ spm, comSpmDefines, onChange }) => {
           return (
             <div style={{ display: active === index ? 'block' : 'none' }}>
               <Track
-                key={index}
+                key={index + type}
                 title={spm.title + `【${getCNType(type)}】`}
                 type={type}
                 id={spm.id}
@@ -157,7 +157,7 @@ export default ({ initValues, configs, onChange }) => {
 
   const setComSpm = useCallback(({ id, type, func }) => {
     setComSpmDefines((c) => {
-      const targetSpmDefine = c.find((spmDefine) => spmDefine.id === id)
+      const targetSpmDefine = c.find((spmDefine) => spmDefine.id === id && spmDefine.type === type)
 
       if (targetSpmDefine) {
         targetSpmDefine.func = func

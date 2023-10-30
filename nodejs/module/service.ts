@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common'
 import axios from 'axios'
 import API from '@mybricks/sdk-for-app/api'
+import { Logger } from '@mybricks/rocker-commons'
 
 @Injectable()
 export default class Service {
   async publish({userId, fileId, json, title, req}) {
 
     const domainName = process.env.NODE_ENV === 'development' ? 'http://localhost:8001' : getRealDomain(req)
+
+    Logger.info(`[publish] create track material: ${fileId}`);
 
     await axios({
       method: 'post',
@@ -20,12 +23,18 @@ export default class Service {
       }
     }).then(res => console.log(res))
 
+    Logger.info(`[publish] create track material success: ${fileId}`);
+
+    Logger.info(`[publish] publish track file: ${fileId}`);
+
     await API.File.publish({
       userId,
       fileId,
       extName: 'theme',
       content: encodeURIComponent(JSON.stringify(json))
     })
+
+    Logger.info(`[publish] publish track file success: ${fileId}`);
 
     return {
       code: 1,

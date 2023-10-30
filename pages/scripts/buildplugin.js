@@ -1,5 +1,7 @@
-const fs = require('fs');
+const fse = require('fs-extra');
 const path = require('path');
+
+const assetsPath = path.resolve(__dirname, './../templates');
 
 module.exports = class BuildPlugin {
   constructor (props) {
@@ -8,18 +10,14 @@ module.exports = class BuildPlugin {
 
   apply (compiler) {
     compiler.hooks.done.tap('BuildPluginDone', () => {
-      const { rootPath, outputPath } = this._props;
-      const templateCssDirPath = path.resolve(rootPath, './templates/css');
-      const assetsCssDirPath = path.resolve(outputPath, './css');
+      const { outputPath } = this._props;
 
-      if (!fs.existsSync(assetsCssDirPath)) {
-        console.log('不存在css文件夹')
-        fs.mkdirSync(assetsCssDirPath)
-      }
+      fse.ensureDirSync(path.resolve(outputPath, './public'))
+      fse.copySync(path.resolve(assetsPath, './public'), path.resolve(outputPath, './public'))
 
-      ['global.css', 'theme.css'].forEach((filename) => {
-        fs.copyFileSync(path.resolve(templateCssDirPath, filename), path.resolve(assetsCssDirPath, filename))
-      })
+
+      fse.ensureDirSync(path.resolve(outputPath, './css'))
+      fse.copySync(path.resolve(assetsPath, './css'), path.resolve(outputPath, './css'))
     });
   }
 };

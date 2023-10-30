@@ -34,18 +34,16 @@ const filterFileName = [
   'package-lock.json',
   'yarn.lock',
   'pages',
-  'mybricks-app-pcspa.zip',
   '.idea',
   '.git',
   '.vscode',
   'sync.js',
   'sync_offline.js',
   '.github',
-  'dom-to-image.js'
 ];
 
 const files = fs.readdirSync(zipDirPath).filter(filename => {
-  return !filterFileName.includes(filename);
+  return filterFileName.indexOf(filename) === -1 && filename.indexOf('.zip') === -1;
 });
 
 read(rootDir, files, zipDirPath);
@@ -57,6 +55,6 @@ zip.generateAsync({
     level: 9
   }
 }).then((content) => {
-  fs.writeFileSync(path.join(__dirname, `./${packageJSON.name}.zip`), content, 'utf-8');
+  fs.writeFileSync(path.join(__dirname, `./${packageJSON.name}-${Date.now()}.zip`), content, 'utf-8');
   console.log(`离线包打包完成，请将 ${packageJSON.name}.zip 拖拽到平台进行离线安装`);
 });

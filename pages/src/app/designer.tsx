@@ -275,7 +275,7 @@ function spaDesignerConfig ({ appData, designerRef, globalModel }) {
     comLibLoader() {
       return new Promise((resolve) => {
         // TODO: 先写死
-        resolve(['https://f2.beckwai.com/udata/pkg/eshop/fangzhou/temp/0.0.11/edit.js'])
+        resolve(['./public/comlibs/0.0.12/edit.js'])
       })
     },
     pageContentLoader() {
@@ -371,7 +371,6 @@ function spaDesignerConfig ({ appData, designerRef, globalModel }) {
       // },
       theme: {
         css: [
-          // "https://f2.beckwai.com/udata/pkg/eshop/fangzhou/temp/editor.d5c483a324024fb6.css",
           "./public/editor.css",
         ],
       },

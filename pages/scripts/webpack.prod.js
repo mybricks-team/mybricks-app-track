@@ -9,7 +9,6 @@ const BuildPlugin = require('./buildplugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WebpackBar = require('webpackbar')
 const HtmlWebpackInlineSourcePlugin = require('@effortlessmotion/html-webpack-inline-source-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = merge(common, {
   mode: 'production',
@@ -28,8 +27,8 @@ module.exports = merge(common, {
       cleanAfterEveryBuildPatterns: ['**/*.LICENSE.txt', 'report.html'],
       cleanOnceBeforeBuildPatterns: ['**/*', '!favicon.ico*', '!css/**'],
     }),
+    /** Copy 静态资源逻辑都在这，用CopyWebpackPlugin的话会让静态资源都走一遍编译，时间太长了，还编译不了rtComs */
     new BuildPlugin({
-      rootPath,
       outputPath
     }),
     new WebpackBar(),
@@ -38,11 +37,6 @@ module.exports = merge(common, {
       template: path.resolve(__dirname, '../templates/index.html'),
       chunks: ['index'],
     }),
-    new HtmlWebpackInlineSourcePlugin(),
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: path.resolve(__dirname, '../templates/public'), to: "public" },
-      ],
-    })
+    new HtmlWebpackInlineSourcePlugin()
   ]
 });

@@ -16,6 +16,9 @@ import versionPlugin from 'mybricks-plugin-version'
 import { Locker, Toolbar } from '@mybricks/sdk-for-app/ui'
 import { TrackPanelCom } from './track-panel'
 import { CodeTemplate, EditorsCdnOptions } from './constant'
+import { MySelf_COM_LIB, H5_BASIC_COM_LIB } from './../constants'
+import comlibLoaderFunc from "./configs/comlibLoader";
+import { comLibAdderFunc } from "./configs/comLibAdder";
 // import { config as ThemePlugin } from '@mybricks/plugin-theme'
 
 import myEditors from './editors'
@@ -51,7 +54,71 @@ const useGlobalModel = (defaultValue = { pageEnv: {}, pageHooks: {} }) => {
   return _model
 }
 
+
+// 兜底物料
+export const LOCAL_DEFAULT_COMLIBS = [H5_BASIC_COM_LIB];
+
 export default function Designer({ appData }) {
+  const coms = [];
+
+  // 处理默认组件库，是从物料中心配置读取，还是直接从本地配置读取
+  if (appData?.defaultComlibs?.length) {
+    // 物料中心配置
+    appData?.defaultComlibs.forEach((lib) => {
+      const { namespace, content, version } = lib;
+      const com = LOCAL_DEFAULT_COMLIBS.find(
+        (lib) => lib.namespace === namespace
+      );
+      const { editJs, rtJs, coms: componentComs } = JSON.parse(content);
+      if (com) {
+        coms.push({
+          id: com.id,
+          namespace,
+          version,
+          editJs,
+          rtJs,
+          coms: componentComs,
+        });
+      } else {
+        coms.push({ ...lib, editJs, rtJs, coms: componentComs });
+      }
+    });
+  } else {
+    // 本地配置读取
+    coms.push(...LOCAL_DEFAULT_COMLIBS);
+  }
+
+  let comlibs = [];
+
+  // 处理我的组件
+  if (!appData.fileContent?.content?.comlibs) {
+    coms.unshift(MySelf_COM_LIB);
+    comlibs = coms;
+  } else {
+    const myselfComlib =
+      appData.fileContent?.content?.comlibs?.find(
+        (lib) => lib.id === "_myself_"
+      ) ?? MySelf_COM_LIB;
+    coms.unshift(myselfComlib);
+    if (
+      appData.fileContent?.content?.comlibs?.some(
+        (lib) => typeof lib === "string"
+      )
+    ) {
+      comlibs = coms;
+    } else {
+      comlibs = appData.fileContent?.content?.comlibs;
+    }
+  }
+
+  const [ctx, setCtx] = useState({
+    sdk: appData,
+    hasMaterialApp: appData.hasMaterialApp,
+    comlibs: comlibs,
+    // comlibs: [appData.fileContent?.content?.comlibs?.find(lib => lib.id === "_myself_") ?? MySelf_COM_LIB, H5_BASIC_COM_LIB],
+    latestComlibs: [],
+  });
+
   const designerRef = useRef<{ 
     dump: () => any, 
     toJSON: () => any, 
@@ -66,6 +133,19 @@ export default function Designer({ appData }) {
   const [saveTip, setSaveTip] = useState('')
   const [saveLoading, setSaveLoading] = useState(false)
   const [publishLoading, setPublishLoading] = useState(false)
+  const [latestComlibs, setLatestComlibs] = useState<[]>();
+
+  useEffect(() => {
+    const needSearchComlibs = comlibs.filter(lib => lib.id !== "_myself_");
+    if (!!needSearchComlibs?.length) {
+      API.Material.getLatestComponentLibrarys(needSearchComlibs.map(lib => lib.namespace)).then((res: any) => {
+        const latestComlibs = (res || []).map(lib => ({ ...lib, ...JSON.parse(lib.content) }))
+        setLatestComlibs(latestComlibs)
+      })
+    } else {
+      setLatestComlibs([]);
+    }
+  }, [JSON.stringify(comlibs.map((lib) => lib.namespace))]);
 
   const content = appData.fileContent.content
 
@@ -113,6 +193,7 @@ export default function Designer({ appData }) {
     const dumpJson = designerRef.current.dump()
     dumpJson.tracksJson = getTracksJson();
     // json.componentType = context.componentType
+    dumpJson.comlibs = ctx.comlibs;
 
     return dumpJson
   }, [getTracksJson])
@@ -252,17 +333,20 @@ export default function Designer({ appData }) {
         /> */}
       </Toolbar>
       <div className={css.designer}>
-        <SPADesigner
-          ref={designerRef}
-          config={spaDesignerConfig({ appData, designerRef, globalModel })}
-          onEdit={onEdit}
-        />
+        { 
+          SPADesigner && latestComlibs && window?.mybricks?.createObservable && 
+          <SPADesigner
+            ref={designerRef}
+            config={spaDesignerConfig({ appData, ctx: window?.mybricks?.createObservable(Object.assign(ctx, { latestComlibs })), designerRef, globalModel })}
+            onEdit={onEdit}
+          />
+        }
       </div>
     </div>
   )
 }
 
-function spaDesignerConfig ({ appData, designerRef, globalModel }) {
+function spaDesignerConfig ({ appData, ctx, designerRef, globalModel }) {
   const content = appData.fileContent?.content || {}
 
   return {
@@ -272,12 +356,12 @@ function spaDesignerConfig ({ appData, designerRef, globalModel }) {
         file: appData.fileContent || {}
       }),
     ],
-    comLibLoader() {
-      return new Promise((resolve) => {
-        // TODO: 先写死
-        resolve(['./public/comlibs/0.0.12/edit.js'])
-      })
-    },
+    ...(ctx.hasMaterialApp
+      ? {
+          comLibAdder: comLibAdderFunc(ctx),
+        }
+      : {}),
+    comLibLoader: comlibLoaderFunc(ctx),
     pageContentLoader() {
       return new Promise((resolve) => {
         resolve(appData.fileContent.content)

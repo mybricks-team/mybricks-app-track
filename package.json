@@ -1,6 +1,6 @@
 {
   "name": "mybricks-app-track",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "定义您的埋点方案",
   "scripts": {
     "start:watch": "nodemon --ext js,ts --exec 'NODE_ENV=development MYBRICKS_PLATFORM_ADDRESS=https://my.mybricks.world node nodejs/index.js'",

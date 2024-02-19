@@ -30,26 +30,38 @@ const SPADesigner = window.mybricks.SPADesigner
 // const LOCAL_DATA_KEY = '"--mybricks--'
 
 const useGlobalModel = (defaultValue = { pageEnv: {}, pageHooks: {} }) => {
-  const [model, setModel] = useState(defaultValue);
+  // const [model, setModel] = useState(defaultValue);
+
+  // const modelRef = useRef(defaultValue);
 
   const _model = useMemo(() => {
     return {
-      ...model,
+      ...defaultValue,
       setPageEnv: (pageEnv) => {
-        setModel(c => ({ ...c, pageEnv }))
+        _model.pageEnv = pageEnv
+        // setModel(c => ({ ...c, pageEnv }))
       },
       setPageHooks: (pageHooks) => {
-        setModel(c => ({ ...c, pageHooks }))
+        _model.pageHooks = pageHooks
+        // setModel(c => ({ ...c, pageHooks }))
       },
       setSpmDefinitionsByNamespace: (namespace, defines) => {
-        setModel(c => {
-          const spmDefinitions = isPlainObject(c.spmDefinitions) ? c.spmDefinitions : {};
-          spmDefinitions[namespace] = defines;
-          return { ...c, spmDefinitions }
-        })
+        const spmDefinitions = isPlainObject(_model.spmDefinitions) ? _model.spmDefinitions : {};
+        spmDefinitions[namespace] = defines;
+        _model.spmDefinitions = spmDefinitions
+
+        // setModel(c => {
+        //   const spmDefinitions = isPlainObject(c.spmDefinitions) ? c.spmDefinitions : {};
+        //   spmDefinitions[namespace] = defines;
+        //   return { ...c, spmDefinitions }
+        // })
       }
     }
-  }, [model]);
+  }, []);
+
+  // useMemo(() => {
+  //   modelRef.current = _model
+  // }, [_model])
 
   return _model
 }
@@ -187,7 +199,7 @@ export default function Designer({ appData }) {
   const getTracksJson = useCallback(() => {
     const json = JSON.parse(JSON.stringify(globalModel))
     return json
-  }, [globalModel])
+  }, [])
 
   const getSaveJson = useCallback(() => {
     const dumpJson = designerRef.current.dump()
@@ -254,6 +266,13 @@ export default function Designer({ appData }) {
       fileId: appData.fileId,
       json: json.tracksJson,
       title: appData.fileContent.name
+    }).catch(err => {
+      message.error({
+        content: err.message || '发布失败',
+        duration: 2,
+      })
+    }).finally(() => {
+      setPublishLoading(false)
     })
 
     if (res.data.code === 1) {
@@ -373,7 +392,7 @@ function spaDesignerConfig ({ appData, ctx, designerRef, globalModel }) {
         if (type === 'com') {
 
           const namespace = model.def?.namespace;
-          const editorsSpms = model.def?.editors?.spm ?? [];
+          const editorsSpms = model.def?.editors?.[':root']?.spm ?? [];
           // const editorsSpms = [
           //   {
           //     id: 'button',

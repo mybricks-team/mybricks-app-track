@@ -1,6 +1,6 @@
 {
   "name": "mybricks-app-track",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "定义您的埋点方案",
   "scripts": {
     "start:watch": "nodemon --ext js,ts --exec 'NODE_ENV=development MYBRICKS_PLATFORM_ADDRESS=https://my.mybricks.world node nodejs/index.js'",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@mybricks/rocker-dao": "^0.0.6",
-    "@mybricks/sdk-for-app": "1.0.4",
+    "@mybricks/sdk-for-app": "^1.0.21",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",

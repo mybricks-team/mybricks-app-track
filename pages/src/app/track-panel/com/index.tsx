@@ -62,7 +62,7 @@ const Track = ({ type, title, id, value, onChange }) => {
         // onChange={(v) => onChange?.({ id, type, func: v })}
         popView={popView}
         // CDN={defaultOptions.CDN}
-        height={'80px'}
+        height={'160px'}
       />
     </div>
   )
@@ -71,12 +71,14 @@ const Track = ({ type, title, id, value, onChange }) => {
 const MutiTrack = ({ spm, comSpmDefines, onChange }) => {
   const [active, setActive] = useState(0)
 
-  const hasMutiType = Array.isArray(spm.type) && spm.type.length > 1;
+  const types = Array.isArray(spm.type) ? spm.type : (typeof spm.type === 'string' ? [spm.type] : []);
+
+  const hasMutiType = Array.isArray(types) && types.length;
 
   const extra = (
     <div className={css.types}>
       {hasMutiType ? (
-        spm.type.map((t, index) => {
+        types.map((t, index) => {
           return (
             <div
               className={active === index ? css.typeActive : css.type}
@@ -97,7 +99,7 @@ const MutiTrack = ({ spm, comSpmDefines, onChange }) => {
   return (
     <Panel title={spm.title} extra={extra}>
       {hasMutiType ? (
-        spm.type.map((type, index) => {
+        types.map((type, index) => {
           return (
             <div style={{ display: active === index ? 'block' : 'none' }}>
               <Track
